@@ -1,0 +1,99 @@
+============================
+🍴 TasteBuddy – Proyecto MVP
+============================
+
+👨‍💻 Autor: Paulo Enrique
+📅 Última sesión: Octubre 2025
+🏷️ Estado: MVP funcional (Expo Web)
+🧠 Asistente técnico: makeAutomatic (GPT-5 Engineering)
+
+------------------------------------------------------------
+📘 Descripción general
+------------------------------------------------------------
+TasteBuddy es una aplicación de Inteligencia Artificial culinaria
+que genera recomendaciones de recetas, ingredientes y combinaciones
+según el perfil de sabor personalizado del usuario.
+
+El sistema ajusta dinámicamente los gustos en siete dimensiones:
+Dulce, Salado, Ácido, Amargo, Umami, Picante y Crujiente.
+
+Incluye radar de sabor, quiz inicial, planificador y feedback adaptativo.
+Funciona completamente offline (sin backend) con datos simulados.
+
+------------------------------------------------------------
+🧩 Stack técnico
+------------------------------------------------------------
+Frontend: React Native + Expo SDK 52
+Lenguaje: JavaScript (JSX)
+Modo de ejecución: Web / Android / iOS
+Render Web: react-native-web@~0.19.13
+Gestión estado: useTasteProfile (custom hook)
+Persistencia: AsyncStorage
+Gráficos: react-native-svg
+Estilos: Theme global (theme.js + styles.js)
+Arquitectura: Modular (screens, components, hooks, utils, data, styles)
+Configuración: Babel, Metro, ESLint, Prettier, TypeScript opcional
+
+------------------------------------------------------------
+⚙️ Entorno probado
+------------------------------------------------------------
+SO: Ubuntu Linux 22.04 LTS
+Node: v20.19.4
+npm: 9.2.0
+Expo CLI: 52.x
+React Native: 0.76.x
+
+Configuraciones adicionales:
+- fs.inotify.max_user_watches=524288 (para evitar ENOSPC)
+- App.js raíz como alias de ./app/App.js
+
+------------------------------------------------------------
+🚀 Flujo de la aplicación
+------------------------------------------------------------
+1️⃣ Quiz inicial (OnboardingScreen) → genera vector vUser
+2️⃣ RadarScreen → visualiza preferencias (gráfico SVG)
+3️⃣ RecipesScreen → recomienda platos según similitud coseno
+4️⃣ FeedbackScreen → ajusta perfil con EWMA y guarda en AsyncStorage
+
+------------------------------------------------------------
+🧪 Validación de usuario
+------------------------------------------------------------
+Prototipo diseñado para entrevistas y pruebas de mercado
+sin conexión a internet. Ideal para FoodTech, UX y startups IA.
+
+------------------------------------------------------------
+📦 Estructura de proyecto
+------------------------------------------------------------
+tastebuddy-mvp-jsx/
+├── app/
+│   ├── App.js
+│   ├── screens/
+│   ├── components/
+│   ├── hooks/
+│   ├── utils/
+│   ├── data/
+│   └── styles/
+├── App.js (alias raíz)
+├── package.json
+├── babel.config.js
+├── metro.config.js
+├── tsconfig.json (opcional)
+├── README.md
+└── assets/
+
+------------------------------------------------------------
+📄 Notas
+------------------------------------------------------------
+- Compatible con GitHub Pages o Netlify (Expo Web export)
+- Puede integrarse con backend FastAPI o Firebase más adelante
+- Diseño modular listo para internacionalización (i18n)
+- Validado en entorno Linux y navegador Chrome 128+
+
+------------------------------------------------------------
+✅ Estado final
+------------------------------------------------------------
+🟢 Proyecto funcional y probado
+🟢 Web y móvil listos
+🟢 Estructura profesional con ESLint + Prettier
+🟢 Persistencia offline implementada
+🟢 Radar y flujo UX confirmados
