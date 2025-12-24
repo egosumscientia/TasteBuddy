@@ -10,15 +10,18 @@
 ------------------------------------------------------------
 📘 Descripción general
 ------------------------------------------------------------
-TasteBuddy es una aplicación de Inteligencia Artificial culinaria
-que genera recomendaciones de recetas, ingredientes y combinaciones
-según el perfil de sabor personalizado del usuario.
+TasteBuddy es una aplicación de recomendación culinaria basada en
+perfiles de sabor personalizados y técnicas de IA explicable.
 
-El sistema ajusta dinámicamente los gustos en siete dimensiones:
-Dulce, Salado, Ácido, Amargo, Umami, Picante y Crujiente.
+El sistema modela las preferencias del usuario en siete dimensiones:
+Dulce, Salado, Ácido, Amargo, Umami, Picante y Crujiente, y genera
+recomendaciones mediante similitud vectorial y feedback explícito.
 
-Incluye radar de sabor, quiz inicial, planificador y feedback adaptativo.
-Funciona completamente offline (sin backend) con datos simulados.
+Incluye onboarding inicial de gustos, radar de sabor interactivo,
+calificación de recetas y ajuste dinámico del perfil a partir del uso.
+
+La aplicación está implementada como un MVP full-stack con frontend
+web/móvil (Expo) y backend API (Node.js + PostgreSQL).
 
 ------------------------------------------------------------
 🧩 Stack técnico
@@ -37,7 +40,7 @@ Configuración: Babel, Metro, ESLint, Prettier, TypeScript opcional
 ------------------------------------------------------------
 ⚙️ Entorno probado
 ------------------------------------------------------------
-SO: Ubuntu Linux 22.04 LTS
+SO: W11 pro / PowerShell 7.5.4
 Node: v20.19.4
 npm: 9.2.0
 Expo CLI: 52.x
