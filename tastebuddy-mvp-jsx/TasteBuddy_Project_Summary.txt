@@ -1,102 +1,107 @@
-============================
-🍴 TasteBuddy – Proyecto MVP
-============================
+====================================
+TasteBuddy - Resumen de proyecto MVP
+====================================
 
-👨‍💻 Autor: Paulo Enrique
-📅 Última sesión: Octubre 2025
-🏷️ Estado: MVP funcional (Expo Web)
-🧠 Asistente técnico: makeAutomatic (GPT-5 Engineering)
-
-------------------------------------------------------------
-📘 Descripción general
-------------------------------------------------------------
-TasteBuddy es una aplicación de recomendación culinaria basada en
-perfiles de sabor personalizados y técnicas de IA explicable.
-
-El sistema modela las preferencias del usuario en siete dimensiones:
-Dulce, Salado, Ácido, Amargo, Umami, Picante y Crujiente, y genera
-recomendaciones mediante similitud vectorial y feedback explícito.
-
-Incluye onboarding inicial de gustos, radar de sabor interactivo,
-calificación de recetas y ajuste dinámico del perfil a partir del uso.
-
-La aplicación está implementada como un MVP full-stack con frontend
-web/móvil (Expo) y backend API (Node.js + PostgreSQL).
+Autor: Paulo Enrique
+Ultima revision: diciembre 2025
+Estado: MVP funcional (API + Expo web)
 
 ------------------------------------------------------------
-🧩 Stack técnico
+Descripcion general
 ------------------------------------------------------------
-Frontend: React Native + Expo SDK 52
-Lenguaje: JavaScript (JSX)
-Modo de ejecución: Web / Android / iOS
-Render Web: react-native-web@~0.19.13
-Gestión estado: useTasteProfile (custom hook)
-Persistencia: AsyncStorage
-Gráficos: react-native-svg
-Estilos: Theme global (theme.js + styles.js)
-Arquitectura: Modular (screens, components, hooks, utils, data, styles)
-Configuración: Babel, Metro, ESLint, Prettier, TypeScript opcional
+TasteBuddy es un asistente de sabor con dos modos:
+- Cliente final (usuario): construye un perfil de gusto en 7 dimensiones (Dulce, Salado, Acido, Amargo, Umami, Picante, Crujiente), recomienda recetas y ajusta el perfil con las calificaciones.
+- Restaurante (admin): muestra el perfil promedio de clientes, aceptacion estimada y permite CRUD de recetas y usuarios.
+
+Arquitectura:
+- Backend: API REST en Express + PostgreSQL.
+- Frontend: React Native (Expo web) que consume la API en http://localhost:3000.
 
 ------------------------------------------------------------
-⚙️ Entorno probado
+Stack tecnico
 ------------------------------------------------------------
-SO: W11 pro / PowerShell 7.5.4
-Node: v20.19.4
-npm: 9.2.0
-Expo CLI: 52.x
-React Native: 0.76.x
+Backend (backend/):
+- Node 18+, Express 5, pg, CORS, dotenv, nodemon.
+- Autenticacion basica con email/password (hash SHA-256) y roles user/admin.
+- Sin migraciones ni seeds en el repo; SQL base en README.
 
-Configuraciones adicionales:
-- fs.inotify.max_user_watches=524288 (para evitar ENOSPC)
-- App.js raíz como alias de ./app/App.js
-
-------------------------------------------------------------
-🚀 Flujo de la aplicación
-------------------------------------------------------------
-1️⃣ Quiz inicial (OnboardingScreen) → genera vector vUser
-2️⃣ RadarScreen → visualiza preferencias (gráfico SVG)
-3️⃣ RecipesScreen → recomienda platos según similitud coseno
-4️⃣ FeedbackScreen → ajusta perfil con EWMA y guarda en AsyncStorage
+Frontend (tastebuddy-mvp-jsx/):
+- Expo SDK 54, React 18, react-native 0.76, react-native-web, react-native-svg.
+- Estado por hooks propios (UserContext, useTasteProfile, useRestaurantMode, useToast).
+- Estilos: theme.js + styles.js, tipografia Nunito via global.css.
 
 ------------------------------------------------------------
-🧪 Validación de usuario
+Datos y modelo de sabor
 ------------------------------------------------------------
-Prototipo diseñado para entrevistas y pruebas de mercado
-sin conexión a internet. Ideal para FoodTech, UX y startups IA.
+Espacio de gustos: vector de 7 valores en [0,1] (Dulce, Salado, Acido, Amargo, Umami, Picante, Crujiente).
+Tablas principales esperadas:
+- users (id, email unico, password_hash, role=user|admin, created_at)
+- taste_profiles (user_id PK, v double precision[], updated_at)
+- recipes (id, name, ingredients text[], taste_v double precision[], featured bool)
+- recipe_ratings (user_id, recipe_id, rating, updated_at)
+Nota: el backend agrega columnas faltantes password_hash/role en users y featured en recipes si no existen.
 
 ------------------------------------------------------------
-📦 Estructura de proyecto
+API principal (puerto 3000)
 ------------------------------------------------------------
-tastebuddy-mvp-jsx/
-├── app/
-│   ├── App.js
-│   ├── screens/
-│   ├── components/
-│   ├── hooks/
-│   ├── utils/
-│   ├── data/
-│   └── styles/
-├── App.js (alias raíz)
-├── package.json
-├── babel.config.js
-├── metro.config.js
-├── tsconfig.json (opcional)
-├── README.md
-└── assets/
+- Salud: GET /health
+- Auth: POST /auth/signup (email, password, role opcional admin|user), POST /auth/login
+- Perfiles:
+  - GET /taste_profile?userId=... -> vector de 7
+  - PUT /taste_profile { userId, v:[7] } -> upsert
+  - GET /taste_profiles/aggregate[?windowDays=N] -> promedio global y conteo
+- Ratings:
+  - POST /ratings { userId, recipeId, rating } -> upsert y ajusta perfil (ganancia ALPHA 0.35)
+  - GET /ratings/aggregate -> promedio global y conteo
+  - POST /recipes/:id/rate { userId, rating } -> upsert + promedio del plato
+- Recetas:
+  - GET /recipes?userId=...&q=term1,term2 -> ordena por 0.75*coseno(vUser, taste_v)+0.25*match de ingredientes (+0.05 si featured)
+  - Admin CRUD: GET|POST /admin/recipes, PUT /admin/recipes/:id, DELETE /admin/recipes/:id
+- Usuarios admin (solo role user): GET|POST /admin/users, PUT /admin/users/:id, DELETE /admin/users/:id
+No hay middleware de autenticacion/roles; el cliente asume confianza (MVP).
 
 ------------------------------------------------------------
-📄 Notas
+Flujo de la app (Expo web)
 ------------------------------------------------------------
-- Compatible con GitHub Pages o Netlify (Expo Web export)
-- Puede integrarse con backend FastAPI o Firebase más adelante
-- Diseño modular listo para internacionalización (i18n)
-- Validado en entorno Linux y navegador Chrome 128+
+- AuthScreen: login/signup; crear con rol admin activa modo restaurante automaticamente.
+- OnboardingScreen: ajusta vector inicial; guarda via /taste_profile.
+- RadarScreen: muestra radar (usuario o promedio de clientes) y accesos a recetas o acciones restaurante.
+- RecipesScreen: busca ingredientes, muestra score, match, acepta ratings inline (POST /recipes/:id/rate).
+- InsightsScreen (modo restaurante): perfil promedio semanal/diario y aceptacion estimada (ratings agregados).
+- RestaurantActionsScreen: sugiere destacar recetas segun similitud al promedio; toggle featured (PUT /admin/recipes/:id).
+- RestaurantRecipesCrudScreen: CRUD completo de recetas (incluye featured).
+- RestaurantUsersCrudScreen: CRUD de usuarios rol user.
+Estado global:
+- useTasteProfile: carga/crea perfil, auto-guardado con debounce 400 ms, ratings locales y agregado global.
+- useRestaurantMode: guarda toggle en AsyncStorage.
+- ToastProvider: avisos breves en overlay.
 
 ------------------------------------------------------------
-✅ Estado final
+Arranque local rapido
 ------------------------------------------------------------
-🟢 Proyecto funcional y probado
-🟢 Web y móvil listos
-🟢 Estructura profesional con ESLint + Prettier
-🟢 Persistencia offline implementada
-🟢 Radar y flujo UX confirmados
+1) API:
+   cd backend
+   cp .env.example .env  # o crear con DATABASE_URL=postgresql://user:pass@localhost:5432/tastebuddy
+   npm install
+   npm run dev  # nodemon en :3000
+2) App (web):
+   cd tastebuddy-mvp-jsx
+   npm install
+   npm run web  # Expo web apuntando a http://localhost:3000
+3) Si usas otro host/red, actualiza las constantes API_BASE en: app/hooks/useTasteProfile.js, app/screens/AuthScreen.js,
+   app/screens/RecipesScreen.js, app/App.js.
+
+------------------------------------------------------------
+Pendientes / riesgos conocidos
+------------------------------------------------------------
+- Sin autenticacion robusta (no JWT/cookies) ni middleware de roles en backend.
+- Sin migraciones ni seeds; requiere crear tablas y datos manualmente.
+- Varios textos con acentos originales podrian estar corruptos si el entorno no usa UTF-8; revisar UI.
+- API publica sin rate limiting ni validaciones avanzadas (solo checks basicos).
+
+------------------------------------------------------------
+Estado final del MVP
+------------------------------------------------------------
+- Backend y frontend integrados y probados en local.
+- Modo usuario y modo restaurante funcionales.
+- Arquitectura modular lista para iterar (i18n, auth real, despliegue).
